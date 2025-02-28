@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        UserService userService = new UserService();
+        //UserService userService = new UserService();
 
         while (true) {
             System.out.println("Enter your username");
@@ -31,7 +31,7 @@ public class Main {
                 main.initAdmin();
                 //System.out.println("You're Logged in Successfully!!");
             } else if (user != null && user.getRole().equals("user")) {
-                main.initCustomer();
+                main.initCustomer(user);
             } else {
                 System.out.println("Login Failed!!");
             }
@@ -80,16 +80,18 @@ public class Main {
         if (result) {
             System.out.println("Customer account is created...");
         } else {
-            System.out.println("Customer account failed...");
+            System.out.println("Customer account creation failed...");
         }
     }
 
-    private void initCustomer() {
+    private void initCustomer(User user) {
         boolean flag = true;
 
         while (flag) {
 
             System.out.println("1, Exit/Logout");
+            System.out.println("2, Check balance");
+            System.out.println("3, Transfer fund");
 
             int selectOption = scanner.nextInt();
 
@@ -99,13 +101,55 @@ public class Main {
                     flag = false;
                     System.out.println("You have successfully logged out");
                     break;
+                case 2:
+                    double balance = main.checkBalance(user.getUsername());
+                    System.out.println("Your bank balance is " + balance);
+                    break;
+                case 3:
+                    main.transferFund(user);
+                    break;
                 default:
                     System.out.println("Wrong choice");
             }
 
         }
+        //System.out.println("You're a Customer");
+    }
 
+    private void transferFund(User userDetails) {
+        System.out.println("Enter payee user id");
+        String payeeAccountId = scanner.next();
 
-        System.out.println("You're a Customer");
+        User user = getUSer(payeeAccountId);
+
+        if (user != null) {
+            System.out.println("Enter amount to transfer");
+            double amount = scanner.nextDouble();
+
+            double userAccountBalance = checkBalance(userDetails.getUsername());
+
+            if (userAccountBalance >= amount) {
+                boolean result = userService.transferAmount(userDetails.getUsername(), payeeAccountId, amount);
+
+                if (result) {
+                    System.out.println("Amount transferred successfully!!");
+                } else {
+                    System.out.println("Transfer failed...");
+                }
+            } else {
+                System.out.println("Insufficient Balance!!");
+            }
+
+        } else {
+            System.out.println("Please enter valid username");
+        }
+    }
+
+    private User getUSer(String userId) {
+        return userService.getUSer(userId);
+    }
+
+    private double checkBalance(String userId) {
+        return userService.checkBalance(userId);
     }
 }

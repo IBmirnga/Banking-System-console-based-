@@ -1,7 +1,9 @@
 package com.IBMirnga.bank.repository;
 
+import com.IBMirnga.bank.entity.Transaction;
 import com.IBMirnga.bank.entity.User;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +41,70 @@ public class UserRepository {
 
     public boolean addNewCustomer(String username, String password, String contactNumber) {
         User user = new User(username, password, contactNumber, "user", 500.0);
+        return users.add(user);
+    }
+
+    public Double checkBalance(String userId) {
+       List<User> result = users.stream()
+                .filter(user -> user.getUsername().equals(userId))
+                .toList();
+
+       if (!result.isEmpty()) {
+           return result.getFirst().getBalance();
+       } else {
+           return null;
+       }
+    }
+
+    public User getUSer(String userId) {
+        List<User> result = users.stream()
+                .filter(user -> user.getUsername().equals(userId))
+                .toList();
+
+        if (!result.isEmpty()) {
+            return result.getFirst();
+        } else {
+            return null;
+        }
+    }
+
+    public boolean transferAmount(String userId, String payeeUserId, Double amount) {
+       boolean isDebit = debit(userId, amount);
+       boolean isCredit = credit(payeeUserId, amount);
+
+       return isDebit && isCredit;
+    }
+
+    private boolean debit(String userId, Double amount, String payeeUserId) {
+        User user = getUSer(userId);
+        Double accountBalance = user.getBalance();
+
+        users.remove(user);
+
+        Double finalBalance = accountBalance - amount;
+        user.setBalance(finalBalance);
+
+        Transaction transaction = new Transaction(
+                LocalDate.now(),
+                payeeUserId,
+                amount,
+                "Debit",
+                accountBalance,
+                finalBalance
+        );
+
+        return users.add(user);
+    }
+
+    private boolean credit(String payeeUserId, Double amount, String userId) {
+        User user = getUSer(userId);
+        Double accountBalance = user.getBalance();
+
+        users.remove(user);
+
+        Double finalBalance = accountBalance + amount;
+        user.setBalance(finalBalance);
+
         return users.add(user);
     }
 }
