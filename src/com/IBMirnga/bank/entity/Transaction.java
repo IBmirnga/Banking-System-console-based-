@@ -4,19 +4,21 @@ import java.time.LocalDate;
 
 public class Transaction {
     private LocalDate transactionDate;
-    private String transactionUSerId;
+    private String transactionUserId;
     private Double transactionAmount;
     private String transactionType;
     private Double initialBalance;
     private Double finalBalance;
+    private String transactionPerformedBy;
 
-    public Transaction(LocalDate transactionDate, String transactionUSerId, Double transactionAmount, String transactionType, Double initialBalance, Double finalBalance) {
+    public Transaction(LocalDate transactionDate, String transactionUserId, Double transactionAmount, String transactionType, Double initialBalance, Double finalBalance, String transactionPerformedBy) {
         this.transactionDate = transactionDate;
-        this.transactionUSerId = transactionUSerId;
+        this.transactionUserId = transactionUserId;
         this.transactionAmount = transactionAmount;
         this.transactionType = transactionType;
         this.initialBalance = initialBalance;
         this.finalBalance = finalBalance;
+        this.transactionPerformedBy = transactionPerformedBy;
     }
 
     public LocalDate getTransactionDate() {
@@ -27,12 +29,12 @@ public class Transaction {
         this.transactionDate = transactionDate;
     }
 
-    public String getTransactionUSerId() {
-        return transactionUSerId;
+    public String getTransactionUserId() {
+        return transactionUserId;
     }
 
-    public void setTransactionUSerId(String transactionUSerId) {
-        this.transactionUSerId = transactionUSerId;
+    public void setTransactionUserId(String transactionUserId) {
+        this.transactionUserId = transactionUserId;
     }
 
     public Double getTransactionAmount() {
@@ -65,5 +67,26 @@ public class Transaction {
 
     public void setFinalBalance(Double finalBalance) {
         this.finalBalance = finalBalance;
+    }
+
+    public String getTransactionPerformedBy() {
+        return transactionPerformedBy;
+    }
+
+    public void setTransactionPerformedBy(String transactionPerformedBy) {
+        this.transactionPerformedBy = transactionPerformedBy;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "transactionDate=" + transactionDate +
+                ", transactionUserId='" + transactionUserId + '\'' +
+                ", transactionAmount=" + transactionAmount +
+                ", transactionType='" + transactionType + '\'' +
+                ", initialBalance=" + initialBalance +
+                ", finalBalance=" + finalBalance +
+                ", transactionPerformedBy='" + transactionPerformedBy + '\'' +
+                '}';
     }
 }

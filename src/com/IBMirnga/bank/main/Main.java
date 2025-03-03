@@ -3,13 +3,15 @@ package com.IBMirnga.bank.main;
 import com.IBMirnga.bank.entity.User;
 import com.IBMirnga.bank.service.UserService;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
-    static Main main = new Main();
-    static UserService userService = new UserService();
+    static final Main main = new Main();
+    static final UserService userService = new UserService();
 
     public static void main(String[] args) {
 
@@ -33,7 +35,7 @@ public class Main {
             } else if (user != null && user.getRole().equals("user")) {
                 main.initCustomer(user);
             } else {
-                System.out.println("Login Failed!!");
+                System.out.println("Incorrect username OR password");
             }
         }
     }
@@ -41,14 +43,17 @@ public class Main {
     private void initAdmin() {
 
         boolean flag = true;
+        String userId = "";
 
         while (flag) {
             //System.out.println("You're an Admin");
             System.out.println("1, Exit/Logout");
             System.out.println("2, Create a customer account");
+            System.out.println("3, See all transactions");
+            System.out.println("4, Check user balance");
+            System.out.println("5, Approve cheque book request");
 
             int selectOption = scanner.nextInt();
-
             switch (selectOption) {
                 case 1:
                     //System.out.println("Write some logic for exit");
@@ -56,13 +61,41 @@ public class Main {
                     System.out.println("You have successfully logged out");
                     break;
                 case 2:
-                    main.addNewCustomer();
+                    addNewCustomer();
                     //System.out.println("add new customer");
+                    break;
+                case 3:
+                    System.out.println("Enter user id");
+                    userId = scanner.next();
+                    printTransactions(userId);
+                    break;
+                case 4:
+                    System.out.println("Enter user id");
+                    userId = scanner.next();
+                    double accountBalance = checkBalance(userId);
+                    System.out.println("This customer's account balance is " + accountBalance);
+                    break;
+                case 5:
+                    List<String> userIds = getChequeBookUserId();
+                    System.out.println("Please select user id from below");
+                    System.out.println(userIds);
+
+                    userId = scanner.next();
+                    approveChequeBookRequest(userId);
+                    System.out.println("Cheque book request approved!!");
                     break;
                 default:
                     System.out.println("Wrong choice");
             }
         }
+    }
+
+    private void approveChequeBookRequest(String userId) {
+        userService.approveChequeBookRequest(userId);
+    }
+
+    public List<String> getChequeBookUserId() {
+        return userService.getChequeBookUserId();
     }
 
     public void addNewCustomer() {
@@ -89,9 +122,18 @@ public class Main {
 
         while (flag) {
 
+//            System.out.println("1, Exit/Logout");
+//            System.out.println("2, Check balance");
+//            System.out.println("3, Transfer fund");
+//            System.out.println("4, Print transactions");
+//            System.out.println("5, Make chequebook request");
+
             System.out.println("1, Exit/Logout");
             System.out.println("2, Check balance");
-            System.out.println("3, Transfer fund");
+            System.out.println("3, Make withdrawal");
+            System.out.println("4, Transfer fund");
+            System.out.println("5, Print transactions");
+            System.out.println("6, Make chequebook request");
 
             int selectOption = scanner.nextInt();
 
@@ -102,11 +144,32 @@ public class Main {
                     System.out.println("You have successfully logged out");
                     break;
                 case 2:
-                    double balance = main.checkBalance(user.getUsername());
+                    double balance = checkBalance(user.getUsername());
                     System.out.println("Your bank balance is " + balance);
                     break;
                 case 3:
-                    main.transferFund(user);
+                    System.out.println("Enter amount");
+                    double amount = scanner.nextDouble();
+                    withdrawal(user.getUsername(), amount);
+                    break;
+                case 4:
+                    transferFund(user);
+                    break;
+                case 5:
+                    printTransactions(user.getUsername());
+                    break;
+                case 6:
+                    String userId = user.getUsername();
+                    Map<String, Boolean> map = getALlChequeBookRequest();
+
+                    if (map.containsKey(userId) && map.get(userId)) {
+                        System.out.println("You have already raised a request and it is already approved");
+                    } else if (map.containsKey(userId) && !map.get(userId)) {
+                        System.out.println("You have already raised a request and it is pending approval");
+                    } else {
+                        chequeBookRequest(userId);
+                        System.out.println("Request raised successfully");
+                    }
                     break;
                 default:
                     System.out.println("Wrong choice");
@@ -114,6 +177,18 @@ public class Main {
 
         }
         //System.out.println("You're a Customer");
+    }
+
+    public void withdrawal(String userId, Double amount) {
+        userService.withdrawal(userId, amount);
+    }
+
+    private void chequeBookRequest(String userId) {
+        userService.chequeBookRequest(userId);
+    }
+
+    public Map<String, Boolean> getALlChequeBookRequest() {
+        return userService.getALlChequeBookRequest();
     }
 
     private void transferFund(User userDetails) {
@@ -151,5 +226,9 @@ public class Main {
 
     private double checkBalance(String userId) {
         return userService.checkBalance(userId);
+    }
+
+    private void printTransactions(String userId) {
+         userService.printTransactions(userId);
     }
 }

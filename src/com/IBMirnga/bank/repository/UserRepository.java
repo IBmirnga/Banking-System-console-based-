@@ -4,12 +4,12 @@ import com.IBMirnga.bank.entity.Transaction;
 import com.IBMirnga.bank.entity.User;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class UserRepository {
-    private static Set<User> users = new HashSet<>();
+    private static final Set<User> users = new HashSet<>();
+    private static final List<Transaction> transactions = new ArrayList<>();
+    public static final Map<String, Boolean> chequeBookRequest = new HashMap<>();
 
     static {
         User user1 = new User("admin", "admin", "080123456", "admin", 0.0);
@@ -69,11 +69,36 @@ public class UserRepository {
     }
 
     public boolean transferAmount(String userId, String payeeUserId, Double amount) {
-       boolean isDebit = debit(userId, amount);
-       boolean isCredit = credit(payeeUserId, amount);
+       boolean isDebit = debit(userId, amount, payeeUserId);
+       boolean isCredit = credit(payeeUserId, amount, userId);
 
        return isDebit && isCredit;
     }
+
+    public void withdrawal(String userId, Double amount) {
+        User user = getUSer(userId);
+        Double accountBalance = user.getBalance();
+        
+        if (accountBalance >= amount) {
+            Double finalBalance = accountBalance - amount;
+            user.setBalance(finalBalance);
+
+            Transaction transaction = new Transaction(
+                    LocalDate.now(),
+                    userId,
+                    amount,
+                    "Withdrawal",
+                    accountBalance,
+                    finalBalance,
+                    userId
+            );
+            System.out.println("Withdrawal made successfully!!");
+            transactions.add(transaction);
+        } else {
+            System.out.println("Insufficient Balance!!");
+        }
+    }
+
 
     private boolean debit(String userId, Double amount, String payeeUserId) {
         User user = getUSer(userId);
@@ -90,8 +115,12 @@ public class UserRepository {
                 amount,
                 "Debit",
                 accountBalance,
-                finalBalance
+                finalBalance,
+                userId
         );
+        System.out.println(transaction);
+
+        transactions.add(transaction);
 
         return users.add(user);
     }
@@ -105,6 +134,63 @@ public class UserRepository {
         Double finalBalance = accountBalance + amount;
         user.setBalance(finalBalance);
 
+        Transaction transaction = new Transaction(
+                LocalDate.now(),
+                userId,
+                amount,
+                "Credit",
+                accountBalance,
+                finalBalance,
+                payeeUserId
+        );
+        System.out.println(transaction);
+
+        transactions.add(transaction);
+
         return users.add(user);
+    }
+
+    public void printTransactions(String userId) {
+       List<Transaction> filteredTransactions = transactions.stream()
+                .filter(transaction -> transaction.getTransactionPerformedBy().equals(userId))
+                .toList();
+
+       System.out.println("Date \t\t User id \t Amount \t Type \t Initial-Balance \t Final-Balance");
+       System.out.println("---------------------------------------------------------------------------");
+       for (Transaction t: filteredTransactions) {
+           System.out.println(t.getTransactionDate()
+                   + "\t\t" + t.getTransactionUserId()
+                   + "\t\t" + t.getTransactionAmount()
+                   + "\t\t" + t.getTransactionType()
+                   + "\t\t" + t.getInitialBalance()
+                   + "\t\t" + t.getFinalBalance()
+           );
+       }
+        System.out.println("---------------------------------------------------------------------------");
+    }
+
+    public void chequeBookRequest(String userId) {
+        chequeBookRequest.put(userId, false);
+    }
+
+    public Map<String, Boolean> getALlChequeBookRequest() {
+        return chequeBookRequest;
+    }
+
+    public List<String> getChequeBookUserId() {
+        List<String> userIds = new ArrayList<>();
+
+        for (Map.Entry<String, Boolean> entry : chequeBookRequest.entrySet()) {
+            if (!entry.getValue()) {
+                userIds.add(entry.getKey());
+            }
+        }
+        return userIds;
+    }
+
+    public void approveChequeBookRequest(String userId) {
+        if (chequeBookRequest.containsKey(userId)) {
+            chequeBookRequest.put(userId, true);
+        }
     }
 }
