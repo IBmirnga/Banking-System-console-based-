@@ -17,8 +17,8 @@ public class UserService {
        return userRepository.login(username, password);
    }
 
-   public boolean addNewCustomer(String username, String password, String contactNumber) {
-       return userRepository.addNewCustomer(username, password, contactNumber);
+   public boolean addNewCustomer(String username, String password, String contactNumber, Double amount) {
+       return userRepository.addNewCustomer(username, password, contactNumber, amount);
    }
 
     public Double checkBalance(String userId) {
@@ -35,6 +35,10 @@ public class UserService {
 
     public void withdrawal(String userId, Double amount) {
         userRepository.withdrawal(userId, amount);
+    }
+
+    public void deposit(String userId, Double amount) {
+       userRepository.deposit(userId, amount);
     }
 
     public void printTransactions(String userId) {

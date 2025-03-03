@@ -39,9 +39,32 @@ public class UserRepository {
      }
     }
 
-    public boolean addNewCustomer(String username, String password, String contactNumber) {
-        User user = new User(username, password, contactNumber, "user", 500.0);
+    public boolean addNewCustomer(String username, String password, String contactNumber, Double amount) {
+        User user = new User(username, password, contactNumber, "user", amount);
+        deposit(username, amount);
         return users.add(user);
+    }
+
+    public void deposit(String userId, Double amount) {
+        User user = getUSer(userId);
+        Double accountBalance = user.getBalance();
+
+        if (accountBalance != null) {
+            Double finalBalance = accountBalance + amount;
+            user.setBalance(finalBalance);
+
+            Transaction transaction = new Transaction(
+                    LocalDate.now(),
+                    userId,
+                    amount,
+                    "Deposit",
+                    accountBalance,
+                    finalBalance,
+                    userId
+            );
+            System.out.println("Deposit made successfully!!");
+            transactions.add(transaction);
+        }
     }
 
     public Double checkBalance(String userId) {
@@ -98,6 +121,7 @@ public class UserRepository {
             System.out.println("Insufficient Balance!!");
         }
     }
+
 
 
     private boolean debit(String userId, Double amount, String payeeUserId) {
