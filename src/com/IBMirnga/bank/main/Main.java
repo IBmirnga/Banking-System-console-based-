@@ -62,6 +62,9 @@ public class Main {
                     break;
                 case 2:
                     addNewCustomer();
+                    System.out.println("Enter user id");
+                    userId = scanner.next();
+                    deposit(userId);
                     //System.out.println("add new customer");
                     break;
                 case 3:
@@ -98,7 +101,9 @@ public class Main {
         return userService.getChequeBookUserId();
     }
 
-    public void deposit(String userId, Double amount) {
+    public void deposit(String userId) {
+        System.out.println("Deposit amount");
+        Double amount = scanner.nextDouble();
         userService.deposit(userId, amount);
     }
 
@@ -112,12 +117,7 @@ public class Main {
         System.out.println("Enter contact number");
         String contactNumber = scanner.next();
 
-        System.out.println("Deposit amount");
-        Double amount = scanner.nextDouble();
-        deposit(username, amount);
-
-
-        boolean result = userService.addNewCustomer(username, password, contactNumber, amount);
+        boolean result = userService.addNewCustomer(username, password, contactNumber, 0.0);
 
         if (result) {
             System.out.println("Customer account is created...");

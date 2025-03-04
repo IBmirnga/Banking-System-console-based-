@@ -39,32 +39,31 @@ public class UserRepository {
      }
     }
 
-    public boolean addNewCustomer(String username, String password, String contactNumber, Double amount) {
-        User user = new User(username, password, contactNumber, "user", amount);
-        deposit(username, amount);
-        return users.add(user);
-    }
 
     public void deposit(String userId, Double amount) {
         User user = getUSer(userId);
         Double accountBalance = user.getBalance();
 
-        if (accountBalance != null) {
-            Double finalBalance = accountBalance + amount;
-            user.setBalance(finalBalance);
+        Double finalBalance = accountBalance + amount;
+        user.setBalance(finalBalance);
 
-            Transaction transaction = new Transaction(
-                    LocalDate.now(),
-                    userId,
-                    amount,
-                    "Deposit",
-                    accountBalance,
-                    finalBalance,
-                    userId
-            );
-            System.out.println("Deposit made successfully!!");
-            transactions.add(transaction);
-        }
+        Transaction transaction = new Transaction(
+                LocalDate.now(),
+                userId,
+                amount,
+                "Deposit",
+                accountBalance,
+                finalBalance,
+                userId
+        );
+        System.out.println("Deposit made successfully!!");
+        transactions.add(transaction);
+    }
+
+    public boolean addNewCustomer(String username, String password, String contactNumber, Double balance) {
+        User user = new User(username, password, contactNumber, "user", 0.0);
+        //deposit(username, balance);
+        return users.add(user);
     }
 
     public Double checkBalance(String userId) {
